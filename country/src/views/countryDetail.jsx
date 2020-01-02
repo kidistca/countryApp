@@ -1,26 +1,27 @@
 import React, { Component } from "react";
-// import axios from "axios";
-// import Row from "react-bootstrap/Row";
-// import Col from "react-bootstrap/Col";
-// import Container from "react-bootstrap/Container";
 import ListGroup from "react-bootstrap/ListGroup";
-// import Navbar from "react-bootstrap/Navbar";
 import { Link } from "react-router-dom";
-// import { Switch, Router } from "react-router-dom";
 import "../App.css";
-
+import ReactMapGL from "react-map-gl";
 export default class extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      country: []
+      country: [],
+      viewport: {
+        width: 635,
+        height: 600,
+        latitude: 10,
+        longitude: 10,
+        zoom: 6
+      },
+      previousCountryCode: ""
     };
     this.getCountryName = this.getCountryName.bind(this);
   }
 
   static getDerivedStateFromProps(props, state) {
     const code = props.match.params.code;
-    // console.log(code);
     const countries = props.listCountries;
     const country = countries.find(
       Onecountry => Onecountry.alpha3Code === code
@@ -34,7 +35,6 @@ export default class extends Component {
   getCountryName = borderCode => {
     let countryName = "";
     const countries = this.props.listCountries;
-    console.log("from get", countries);
     countries.filter(country => {
       if (borderCode === country.alpha3Code) {
         countryName = country.name;
@@ -43,11 +43,47 @@ export default class extends Component {
     return countryName;
   };
 
+  componentDidUpdate() {
+    const code = this.props.match.params.code;
+    if (this.state.previousCountryCode !== code) {
+      this.setState({
+        viewport: {
+          width: 635,
+          height: 600,
+          latitude: this.state.country.latlng[0],
+          longitude: this.state.country.latlng[1],
+          zoom: 6
+        },
+        previousCountryCode: code
+      });
+    }
+  }
+
+  componentDidMount() {
+    const code = this.props.match.params.code;
+    if (this.state.previousCountryCode !== code) {
+      this.setState({
+        viewport: {
+          width: 635,
+          height: 600,
+          latitude: this.state.country.latlng[0],
+          longitude: this.state.country.latlng[1],
+          zoom: 6
+        },
+        previousCountryCode: code
+      });
+    }
+  }
+
   render() {
     const country = this.state.country;
+    console.log(country.latlng[0]);
+    console.log("viewport", this.state.viewport);
+    const MapboxAccessToken =
+      "pk.eyJ1Ijoia2lkaXN0IiwiYSI6ImNrNHd3aG93aDBhdHozZG16dHVxbWdkaHAifQ.9pmjUGGJfaM-U3Sr9XlX5g";
     return (
       <div>
-        <ListGroup className="text-color">
+        <ListGroup>
           <ListGroup.Item>
             <h1>{country.name}</h1>
           </ListGroup.Item>
@@ -64,7 +100,7 @@ export default class extends Component {
             <h6>Borders -</h6>
             {(country.borders.length &&
               country.borders.map(item => (
-                <ul key={country.alpha2Code}>
+                <ul>
                   <Link className="text-color" to={`/country/${item}`}>
                     {this.getCountryName(item)}
                   </Link>
@@ -72,6 +108,11 @@ export default class extends Component {
               ))) || <span> No Border</span>}
           </ListGroup.Item>
         </ListGroup>
+        <ReactMapGL
+          {...this.state.viewport}
+          mapboxApiAccessToken={MapboxAccessToken}
+          mapStyle="mapbox://styles/kidist/ck4x1wvgk0i5v1cnnq4urxqp4"
+        />
       </div>
     );
   }

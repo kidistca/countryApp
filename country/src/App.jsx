@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { Switch, Route } from "react-router-dom";
 import CountryView from "./views/countryDetail";
 import "./App.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 export default class extends Component {
   constructor(props) {
@@ -44,7 +45,7 @@ export default class extends Component {
     axios
       .get("https://restcountries.eu/rest/v2/all")
       .then(response => {
-        console.log(response.data);
+        // console.log(response.data);
         this.setState({
           countries: response.data
         });
@@ -78,7 +79,7 @@ export default class extends Component {
             className="mb-3"
             onClick={this.sortByPopulation}
           >
-            Sort by Populution
+            Sort by Population
           </Button>
           <Row>
             <div className="col-5 scroller">
